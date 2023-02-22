@@ -1,5 +1,7 @@
 #!/bin/bash
 
-source ~/anaconda3/etc/profile.d/conda.sh
+source config.sh
+source $condapath
 conda activate control
-CUDA_VISIBLE_DEVICES=0 python tutorial_train.py
+
+python tutorial_train.py
