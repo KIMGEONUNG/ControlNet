@@ -69,7 +69,6 @@ if __name__ == "__main__":
     # DATASET
     # dataset = DegradeDataset(targets=['noise'])
     dataset = instantiate_from_config(config.data)
-    exit() 
     dataloader = DataLoader(dataset,
                             num_workers=config.dataloader.num_workers,
                             batch_size=config.dataloader.batch_size,
