@@ -55,8 +55,10 @@ class DegradeDataset(Dataset):
         x_clean = torchvision.transforms.RandomCrop(self.crop_res)(x_clean)
         x_deg, _ = self.degrader(x_clean)
 
+        # Normalize source images to [0, 1].
+        x_deg = np.array(x_deg) / 255.0
+
         # Normalize target images to [-1, 1].
-        x_deg = 2.0 * np.array(x_deg) / 255.0 - 1
         x_clean = 2.0 * np.array(x_clean) / 255.0 - 1
 
         return dict(jpg=x_clean, txt=prompt, hint=x_deg)
