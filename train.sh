@@ -4,4 +4,8 @@ source config.sh
 source $condapath
 conda activate control
 
-python train.py
+if [[ -z $@ ]]; then
+    python train.py
+else
+    python train.py $@
+fi

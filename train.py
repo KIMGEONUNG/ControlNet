@@ -11,6 +11,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, Callback, LearningRateM
 from pytorch_lightning import seed_everything
 
 from MyCallbacks import SetupCallback
+from ldm.util import instantiate_from_config
 
 
 def parse():
@@ -66,10 +67,12 @@ if __name__ == "__main__":
     )
 
     # DATASET
-    dataset = DegradeDataset()
+    # dataset = DegradeDataset(targets=['noise'])
+    dataset = instantiate_from_config(config.data)
+    exit() 
     dataloader = DataLoader(dataset,
-                            num_workers=config.data.num_workers,
-                            batch_size=config.training.batch_size,
+                            num_workers=config.dataloader.num_workers,
+                            batch_size=config.dataloader.batch_size,
                             shuffle=False)
 
     # MODEL
