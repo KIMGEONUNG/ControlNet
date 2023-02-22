@@ -117,7 +117,9 @@ Do not ask us why we use these three names - this is related to the dark history
 
 ## Step 3 - What SD model do you want to control?
 
-Then you need to decide which Stable Diffusion Model you want to control. In this example, we will just use standard SD1.5. You can download it from the [official page of Stability](https://huggingface.co/runwayml/stable-diffusion-v1-5/tree/main). You want the file "v1-5-pruned.ckpt".
+Then you need to decide which Stable Diffusion Model you want to control. In this example, we will just use standard SD1.5. You can download it from the [official page of Stability](https://huggingface.co/runwayml/stable-diffusion-v1-5/tree/main). You want the file ["v1-5-pruned.ckpt"](https://huggingface.co/runwayml/stable-diffusion-v1-5/tree/main).
+
+(Or ["v2-1_512-ema-pruned.ckpt"](https://huggingface.co/stabilityai/stable-diffusion-2-1-base/tree/main) if you are using SD2.)
 
 Then you need to attach a control net to the SD model. The architecture is 
 
@@ -128,6 +130,10 @@ Note that all weights inside the ControlNet are also copied from SD so that no l
 We provide a simple script for you to achieve this easily. If your SD filename is "./models/v1-5-pruned.ckpt" and you want the script to save the processed model (SD+ControlNet) at location "./models/control_sd15_ini.ckpt", you can just run:
 
     python tool_add_control.py ./models/v1-5-pruned.ckpt ./models/control_sd15_ini.ckpt
+
+Or if you are using SD2:
+
+    python tool_add_control_sd21.py ./models/v2-1_512-ema-pruned.ckpt ./models/control_sd21_ini.ckpt
 
 You may also use other filenames as long as the command is "python tool_add_control.py input_path output_path".
 
@@ -177,6 +183,7 @@ trainer = pl.Trainer(gpus=1, precision=32, callbacks=[logger])
 trainer.fit(model, dataloader)
 
 ```
+(or "tutorial_train_sd21.py" if you are using SD2)
 
 Thanks to our organized dataset pytorch object and the power of pytorch_lightning, the entire code is just super short.
 
@@ -251,3 +258,19 @@ However, this option is also very useful when you are training on images with so
 Also, if your dataset is large, you may want to end the training with a few thousands of steps with those layer unlocked. This usually improve the "problem-specific" solutions a little. You may try it yourself to feel the difference.
 
 Also, if you unlock some original layers, you may want a lower learning rate, like 2e-6.
+
+## More Consideration: Sudden Converge Phenomenon and Gradient Accumulation
+
+![img](../github_page/ex1.jpg)
+
+Because we use zero convolutions, the SD should always be able to predict meaningful images. (If it cannot, the training has already failed.)
+
+You will always find that at some iterations, the model "suddenly" be able to fit some training conditions. This means that you will get a basically usable model at about 3k to 7k steps (future training will improve it, but that model after the first "sudden converge" should be basically functional).
+
+Note that 3k to 7k steps is not very large, and you should consider larger batch size rather than more training steps. If you can observe the "sudden converge" at 3k step using batch size 4, then, rather than train it with 300k further steps, a better idea is to use 100× gradient accumulation to re-train that 3k steps with 100× batch size. Note that perhaps we should not do this *too* extremely (perhaps 100x accumulation is too extreme), but you should consider that, since "sudden converge" will *always* happen at that certain point, getting a better converge is more important.
+
+Because that "sudden converge" always happens, lets say "sudden converge" will happen at 3k step and our money can optimize 90k step, then we have two options: (1) train 3k steps, sudden converge, then train 87k steps. (2) 30x gradient accumulation, train 3k steps (90k real computation steps), then sudden converge.
+
+In my experiments, (2) is usually better than (1). However, in real cases, perhaps you may need to balance the steps before and after the "sudden converge" on your own to find a balance. The training after "sudden converge" is also important.
+
+But usually, if your logic batch size is already bigger than 256, then further extending the batch size is not very meaningful. In that case, perhaps a better idea is to train more steps. I tried some "common" logic batch size at 64 or 96 or 128 (by gradient accumulation), it seems that many complicated conditions can be solved very well already.

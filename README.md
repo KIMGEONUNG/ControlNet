@@ -51,6 +51,8 @@ All test images can be found at the folder "test_imgs".
 
 ### News
 
+2023/02/20 - Implementation for non-prompt mode released. See also [Guess Mode / Non-Prompt Mode](#guess-anchor).
+
 2023/02/12 - Now you can play with any community model by [Transferring the ControlNet](https://github.com/lllyasviel/ControlNet/discussions/12).
 
 2023/02/11 - [Low VRAM mode](docs/low_vram.md) is added. Please use this mode if you are using 8GB GPU(s) or if you want larger batch size.
@@ -208,6 +210,58 @@ This model is not available right now. We need to evaluate the potential risks b
 
 ![p](github_page/p21.png)
 
+<a id="guess-anchor"></a>
+
+# Guess Mode / Non-Prompt Mode
+
+The "guess mode" (or called non-prompt mode) will completely unleash all the power of the very powerful ControlNet encoder. 
+
+You need to manually check the "Guess Mode" toggle to enable this mode.
+
+In this mode, the ControlNet encoder will try best to recognize the content of the input control map, like depth map, edge map, scribbles, etc, even when you remove all prompts.
+
+**Let's play some really harder games!**
+
+**No prompts. No "positive" prompts. No "negative" prompts. One single diffusion loop. No extra caption detector.**
+
+This mode is well-suited for comparing recent various projects to control stable diffusion, because the non-prompted generating task is significantly more difficult than prompted task. In this experimental setting, the performance difference between various recent research projects will be **VERY BIG**.
+
+For this mode, we recommend to use 50 steps and guidance scale between 3 and 5.
+
+![p](github_page/uc2a.png)
+
+**No prompts. No "positive" prompts. No "negative" prompts.**
+
+![p](github_page/uc2b.png)
+
+Note that the below example is 768×768. **No prompts. No "positive" prompts. No "negative" prompts.**
+
+![p](github_page/uc1.png)
+
+By tuning the parameters, you can get some very intereting results like below:
+
+![p](github_page/uc3.png)
+
+Because no prompt is available, the ControlNet encoder will "guess" what is in the control map. Sometimes the guess result is really interesting. Because diffusion algorithm can essentially give multiple results, the ControlNet seems able to give multiple guesses, like this:
+
+![p](github_page/uc4.png)
+
+Without prompt, the HED seems good at generating images look like paintings when the control strength is relatively low:
+
+![p](github_page/uc6.png)
+
+Note that in the guess mode, you will still be able to input prompts. The only difference is that the model will "try harder" to guess what is in the control map even if you do not provide the prompt. Just try it yourself!
+
+Besides, if you write some scripts (like BLIP) to generate image captions from the "guess mode" images, and then use the generated captions as prompts to diffuse again, you will get a SOTA pipeline for fully automatic conditional image generating.
+
+# Use ControlNet in Any Community Model (SD1.X)
+
+This is an experimental feature.
+
+[See the steps here](https://github.com/lllyasviel/ControlNet/discussions/12).
+
+Or you may want to use the [Mikubill' A1111 Webui Plugin](https://github.com/Mikubill/sd-webui-controlnet) which is plug-and-play and does not need manual merging.
+
 # Annotate Your Own Data
 
 We provide simple python scripts to process images.
@@ -219,6 +273,22 @@ We provide simple python scripts to process images.
 Training a ControlNet is as easy as (or even easier than) training a simple pix2pix. 
 
 [See the steps here](docs/train.md).
+
+# Related Resources
+
+Special Thank to the great project - [Mikubill' A1111 Webui Plugin](https://github.com/Mikubill/sd-webui-controlnet) !
+
+We also thank Hysts for making [Hugging Face Space](https://huggingface.co/spaces/hysts/ControlNet) as well as more than 65 models in that amazing [Colab list](https://github.com/camenduru/controlnet-colab)! 
+
+We also thank all authors for making Controlnet DEMOs, including but not limited to [fffiloni](https://huggingface.co/spaces/fffiloni/ControlNet-Video), [other-model](https://huggingface.co/spaces/hysts/ControlNet-with-other-models), [ThereforeGames](https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/7784), [RamAnanth1](https://huggingface.co/spaces/RamAnanth1/ControlNet), etc!
+
+Besides, you may also want to read these amazing related works:
+
+[T2I-Adapter: Learning Adapters to Dig out More Controllable Ability for Text-to-Image Diffusion Models](https://github.com/TencentARC/T2I-Adapter): A much smaller model to control stable diffusion!
+
+[ControlLoRA: A Light Neural Network To Control Stable Diffusion Spatial Information](https://github.com/HighCWu/ControlLoRA): Implement Controlnet using LORA!
+
+And these amazing recent projects: [InstructPix2Pix Learning to Follow Image Editing Instructions](https://www.timothybrooks.com/instruct-pix2pix), [Pix2pix-zero: Zero-shot Image-to-Image Translation](https://github.com/pix2pixzero/pix2pix-zero), [Plug-and-Play Diffusion Features for Text-Driven Image-to-Image Translation](https://github.com/MichalGeyer/plug-and-play), [MaskSketch: Unpaired Structure-guided Masked Image Generation](https://arxiv.org/abs/2302.05496), [SEGA: Instructing Diffusion using Semantic Dimensions](https://arxiv.org/abs/2301.12247), [Universal Guidance for Diffusion Models](https://github.com/arpitbansal297/Universal-Guided-Diffusion), [Region-Aware Diffusion for Zero-shot Text-driven Image Editing](https://github.com/haha-lisa/RDM-Region-Aware-Diffusion-Model), [Domain Expansion of Image Generators](https://arxiv.org/abs/2301.05225), [Image Mixer](https://twitter.com/LambdaAPI/status/1626327289288957956), [MultiDiffusion: Fusing Diffusion Paths for Controlled Image Generation](https://multidiffusion.github.io/)
 
 # Citation
 
