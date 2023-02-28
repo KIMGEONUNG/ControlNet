@@ -1,16 +1,10 @@
-import json
-from typing import Any
 import numpy as np
 import torch
 import torchvision
-from einops import rearrange
 from PIL import Image
 from torch.utils.data import Dataset
 from annotator.canny import CannyDetector
 from annotator.util import HWC3
-
-
-from myutils import Degrade
 
 
 class CannyDataset(Dataset):
@@ -59,15 +53,17 @@ class CannyDataset(Dataset):
                                      Image.Resampling.LANCZOS)
         # CROP
         x_clean = torchvision.transforms.RandomCrop(self.crop_res)(x_clean)
+        x_clean = np.array(x_clean)
 
         # PROCESS
         x_cond = self.apply_canny(x_clean, self.low_threshold,
-                                    self.high_threshold)
+                                  self.high_threshold)
+        x_cond = HWC3(x_cond)
 
         # Normalize source images to [0, 1].
-        x_cond = np.array(x_cond) / 255.0
+        x_cond = x_cond / 255.0
 
         # Normalize target images to [-1, 1].
-        x_clean = 2.0 * np.array(x_clean) / 255.0 - 1
+        x_clean = 2.0 * x_clean / 255.0 - 1
 
         return dict(jpg=x_clean, txt=prompt, hint=x_cond)
