@@ -11,7 +11,7 @@ logging:
 data:
   target: datasets.DegradeDataset.DegradeDataset
   params:
-    targets: [downsample]
+    targets: [id]
 dataloader:
   batch_size: 12
   num_workers: 1 

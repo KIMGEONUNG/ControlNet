@@ -1,6 +1,7 @@
 if [[ $(hostname | grep mark12) ]]; then
     # IN DOCKER CONTAINER MARK12
-    export CUDA_VISIBLE_DEVICES=4,5
+    # export CUDA_VISIBLE_DEVICES=4
+    export CUDA_VISIBLE_DEVICES=4
     export condapath=/opt/conda/etc/profile.d/conda.sh
 else
     # IN LOCAL SYSTEM
