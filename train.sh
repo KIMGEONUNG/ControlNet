@@ -5,7 +5,7 @@ source $condapath
 conda activate control
 
 if [[ -z $@ ]]; then
-    python train.py
-else
-    python train.py $@
+  echo -e "\033[31mError: Specify config like '--configs/default.yaml' \033[0m" >&2
+  exit 1
 fi
+python train.py $@
